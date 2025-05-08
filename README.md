@@ -1,5 +1,15 @@
 # 简介
-一键脚本，可批量进行视频下载，灵感来自于[nodeseek大佬](https://www.nodeseek.com/post-334093-2#15)
+基于yt-dlp的一键脚本，可批量进行视频下载，灵感来自于[nodeseek大佬](https://www.nodeseek.com/post-334093-2#15),支持单/多个视频进行下载，支持Linux/Windows系统。
+
+![1000193433.jpg](https://img.cccd.cloudns.be/file/1746720584399_1000193433.jpg)
+
+![1000193434.jpg](https://img.cccd.cloudns.be/file/1746720581006_1000193434.jpg)
+
+![1000193428.jpg](https://img.cccd.cloudns.be/file/1746720588978_1000193428.jpg)
+
+![1000193427.jpg](https://img.cccd.cloudns.be/file/1746720587272_1000193427.jpg)
+
+
 # 使用方法
 ## Windows
 下载[yt-dlp](https://github.com/yt-dlp/yt-dlp)
