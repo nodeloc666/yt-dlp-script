@@ -87,7 +87,6 @@ input_url() {
     echo "[0] 退出脚本"
     echo "[1] 单个视频下载"
     echo "[2] 批量视频下载"
-    echo "[100] 返回上一步"
     echo
     read -e -p "请选择下载模式: " mode
     
