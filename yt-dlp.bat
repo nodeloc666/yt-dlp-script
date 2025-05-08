@@ -5,7 +5,7 @@ color 0B
 
 :input_url
 cls
-echo ===== YouTube 视频下载工具 =====
+echo ===== 视频下载工具 =====
 echo.
 echo [0] 退出脚本
 echo.
