@@ -1,8 +1,14 @@
 # 简介
 一键脚本，可批量进行视频下载
 # 使用方法
+## Windows
 下载[yt-dlp]()
 下载[ffmpeg]()
 新建文件夹，将`ffmpeg.exe`,`ffprobe.exe`,`yt-dlp.exe`,`yt-dlp.bat`放在同一目录下，然后双击运行`yt-dlp.bat`运行，按照提示输入相应信息即可
+## Linux（对Debian/Ubuntu/Alpine/Centos都做了适配）
+```sh
+mkdir yt-dlp && cd yt-dlp && curl -o "https://raw.githubusercontent.com/nodeloc666/yt-dlp-bat/refs/heads/main/yt-dlp.sh" && bash yt-dlp.sh
+```
+
 
 **注意**：批量下载时，会自动检测同目录下的urls.txt，如若没有，会自动创建，在txt文件，视频链接每行一个链接
