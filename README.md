@@ -14,4 +14,6 @@ mkdir yt-dlp && cd yt-dlp && curl "https://raw.githubusercontent.com/nodeloc666/
 ```
 
 
-**注意**：批量下载时，会自动检测同目录下的urls.txt，如若没有，会自动创建，在txt文件，视频链接每行一个链接
+**注意**：
+1. 批量下载时，会自动检测同目录下的urls.txt，如若没有，会自动创建，在txt文件，视频链接每行一个链接
+2. 内存较小时，尽量避免`大视频`和`高线程`
