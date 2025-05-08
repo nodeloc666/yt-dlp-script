@@ -84,11 +84,12 @@ input_url() {
     clear_screen
     echo -e "${BLUE}===== 视频下载脚本 =====${NC}"
     echo
-    echo "[0] 退出程序"
+    echo "[0] 退出脚本"
     echo "[1] 单个视频下载"
     echo "[2] 批量视频下载"
+    echo "[100] 返回上一步"
     echo
-    read -e -p "请选择下载模式(0-2): " mode
+    read -e -p "请选择下载模式: " mode
     
     case $mode in
         0) 
@@ -97,6 +98,7 @@ input_url() {
             ;;
         1) single_video ;;
         2) batch_videos ;;
+        100) input_url ;;
         *) 
             echo -e "${RED}无效选择，请重新输入${NC}"
             sleep 2
@@ -109,10 +111,14 @@ single_video() {
     clear_screen
     echo -e "${BLUE}===== 单个视频下载 =====${NC}"
     echo
-    echo "[0] 返回上一步"
+    echo "[0] 退出脚本"
     read -e -p "请输入视频链接: " url
+    echo "[100] 返回上一步"
     
     if [ "$url" = "0" ]; then
+        echo "正在退出程序..."
+        exit 0
+    elif [ "$url" = "100" ]; then
         input_url
         return
     fi
@@ -128,15 +134,16 @@ batch_videos() {
     echo "请将视频链接保存在当前目录下的 urls.txt 文件中"
     echo "每行一个链接"
     echo
-    echo "[0] 返回上一步"
+    echo "[0] 退出脚本"
     echo "[1] 继续操作"
+    echo "[100] 返回上一步"
     echo
-    read -e -p "请选择(0-1): " choice
+    read -e -p "请选择: " choice
     
     case $choice in
         0)
-            input_url
-            return
+            echo "正在退出程序..."
+            exit 0
             ;;
         1)
             if [ ! -f "urls.txt" ]; then
@@ -161,6 +168,10 @@ batch_videos() {
             sleep 2
             select_quality
             ;;
+        100)
+            input_url
+            return
+            ;;
         *)
             echo -e "${RED}无效选择，请重新输入${NC}"
             sleep 2
@@ -173,26 +184,31 @@ select_quality() {
     clear_screen
     echo -e "${BLUE}===== 请选择视频分辨率 =====${NC}"
     echo
-    echo "[0] 返回上一步"
+    echo "[0] 退出脚本"
     echo "[1] 480P"
     echo "[2] 720P"
     echo "[3] 1080P"
     echo "[4] 2160P(4K)"
+    echo "[100] 返回上一步"
     echo
-    read -e -p "请输入数字选择(0-4): " choice
+    read -e -p "请输入数字选择: " choice
     
     case $choice in
-        0) 
+        0)
+            echo "正在退出程序..."
+            exit 0
+            ;;
+        1) format=480 ;;
+        2) format=720 ;;
+        3) format=1080 ;;
+        4) format=2160 ;;
+        100)
             if [ "$mode" == "1" ]; then
                 single_video
             else
                 batch_videos
             fi
             ;;
-        1) format=480 ;;
-        2) format=720 ;;
-        3) format=1080 ;;
-        4) format=2160 ;;
         *)
             echo -e "${RED}无效选择，请重新输入${NC}"
             sleep 2
@@ -200,7 +216,7 @@ select_quality() {
             ;;
     esac
     
-    [ "$choice" != "0" ] && {
+    [ "$choice" != "0" ] && [ "$choice" != "100" ] && {
         filter="bv[height<=$format][ext=mp4]+ba[ext=m4a]/best"
         select_threads
     }
@@ -210,19 +226,23 @@ select_threads() {
     clear_screen
     echo -e "${BLUE}===== 请选择下载线程数 =====${NC}"
     echo
-    echo "[0] 返回上一步"
+    echo "[0] 退出脚本"
     echo "线程数越高下载速度越快，但可能会导致不稳定"
     echo "推荐值: 4-6"
+    echo "[100] 返回上一步"
     echo
-    read -e -p "请输入下载线程数(0-10): " threads
+    read -e -p "请输入下载线程数(1-10): " threads
     
     if [ "$threads" = "0" ]; then
+        echo "正在退出程序..."
+        exit 0
+    elif [ "$threads" = "100" ]; then
         select_quality
         return
     fi
     
     if [[ ! $threads =~ ^[1-9]$|^10$ ]]; then
-        echo -e "${RED}无效线程数，请输入0-10之间的整数${NC}"
+        echo -e "${RED}无效线程数，请输入1-10之间的整数${NC}"
         sleep 2
         select_threads
     fi
@@ -245,16 +265,21 @@ confirm_download() {
     echo "最大分辨率: ${format}P"
     echo "下载线程数: $threads"
     echo
-    echo "[0] 返回上一步"
+    echo "[0] 退出脚本"
     echo "[1] 开始下载"
     echo "[2] 重新配置"
+    echo "[100] 返回上一步"
     echo
-    read -e -p "请选择(0-2): " confirm
+    read -e -p "请选择: " confirm
     
     case $confirm in
-        0) select_threads ;;
+        0)
+            echo "正在退出程序..."
+            exit 0
+            ;;
         1) start_download ;;
         2) input_url ;;
+        100) select_threads ;;
         *)
             echo -e "${RED}无效选择，请重新输入${NC}"
             sleep 2
