@@ -10,7 +10,7 @@
 ## Linux（对Debian/Ubuntu/Alpine/Centos都做了适配）
 
 ```sh
-mkdir yt-dlp && cd yt-dlp && curl "https://raw.githubusercontent.com/nodeloc666/yt-dlp-bat/refs/heads/main/yt-dlp.sh" -o yt-dlp.sh && bash yt-dlp.sh
+mkdir yt-dlp && cd yt-dlp && curl "https://raw.githubusercontent.com/nodeloc666/yt-dlp-script/refs/heads/main/yt-dlp.sh" -o yt-dlp.sh && bash yt-dlp.sh
 ```
 
 
