@@ -40,16 +40,27 @@ echo 每行一个链接
 echo.
 if not exist "urls.txt" (
     echo 未找到 urls.txt 文件
-
     echo 已为您创建 urls.txt 文件，请在文件中添加视频链接后重试
-
     echo.> urls.txt
-    timeout /t 3 >nul
+    echo.
+    echo 请按任意键继续...
+    pause >nul
     goto input_url
 )
+
+findstr /r /c:"." "urls.txt" >nul
+if errorlevel 1 (
+    echo urls.txt 文件为空，请添加视频链接后重试
+
+    echo.
+    echo 请按任意键继续...
+    pause >nul
+    goto input_url
+)
+
 set "url=urls.txt"
 
-echo 已检测到 urls.txt 文件
+echo 已检测到 urls.txt 文件，包含有效链接
 
 timeout /t 2 >nul
 
