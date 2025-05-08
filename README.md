@@ -1,5 +1,5 @@
 # 简介
-一键脚本，可批量进行视频下载
+一键脚本，可批量进行视频下载，灵感来自于[nodeseek大佬](https://www.nodeseek.com/post-334093-2#15)
 # 使用方法
 ## Windows
 下载[yt-dlp](https://github.com/yt-dlp/yt-dlp)
