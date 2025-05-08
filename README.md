@@ -7,7 +7,7 @@
 新建文件夹，将`ffmpeg.exe`,`ffprobe.exe`,`yt-dlp.exe`,`yt-dlp.bat`放在同一目录下，然后双击运行`yt-dlp.bat`运行，按照提示输入相应信息即可
 ## Linux（对Debian/Ubuntu/Alpine/Centos都做了适配）
 ```sh
-mkdir yt-dlp && cd yt-dlp && curl -o "https://raw.githubusercontent.com/nodeloc666/yt-dlp-bat/refs/heads/main/yt-dlp.sh" && bash yt-dlp.sh
+mkdir yt-dlp && cd yt-dlp && curl "https://raw.githubusercontent.com/nodeloc666/yt-dlp-bat/refs/heads/main/yt-dlp.sh" -o yt.sh && bash yt-dlp.sh
 ```
 
 
