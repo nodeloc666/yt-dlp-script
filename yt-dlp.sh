@@ -82,7 +82,7 @@ clear_screen() {
 
 input_url() {
     clear_screen
-    echo -e "${BLUE}===== YouTube 视频下载工具 =====${NC}"
+    echo -e "${BLUE}===== 视频下载脚本 =====${NC}"
     echo
     echo "[0] 退出程序"
     echo "[1] 单个视频下载"
