@@ -112,9 +112,9 @@ single_video() {
     echo -e "${BLUE}===== 单个视频下载 =====${NC}"
     echo
     echo "[0] 退出脚本"
-    read -e -p "请输入视频链接: " url
     echo "[100] 返回上一步"
-    
+    read -e -p "请输入视频链接: " url
+
     if [ "$url" = "0" ]; then
         echo "正在退出程序..."
         exit 0
@@ -226,9 +226,10 @@ select_threads() {
     clear_screen
     echo -e "${BLUE}===== 请选择下载线程数 =====${NC}"
     echo
-    echo "[0] 退出脚本"
     echo "线程数越高下载速度越快，但可能会导致不稳定"
     echo "推荐值: 4-6"
+    echo
+    echo "[0] 退出脚本"
     echo "[100] 返回上一步"
     echo
     read -e -p "请输入下载线程数(1-10): " threads
