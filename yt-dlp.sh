@@ -4,7 +4,8 @@
 export LANG=zh_CN.UTF-8
 
 # 颜色设置
-BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
@@ -20,7 +21,7 @@ check_dependencies() {
         echo "Debian/Ubuntu: sudo apt install curl"
         echo "CentOS: sudo yum install curl"
         echo "Alpine: apk add curl"
-        read -e -p "按回车键退出..." 
+        read -p "按回车键退出..." 
         exit 1
     fi
     
@@ -29,7 +30,7 @@ check_dependencies() {
         echo -e "${RED}未检测到 yt-dlp${NC}"
         echo "[Y] 是"
         echo "[N] 否"
-        read -e -p "是否下载 yt-dlp？(Y/N): " install_choice
+        read -p "是否下载 yt-dlp？(Y/N): " install_choice
         if [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
             echo "正在下载 yt-dlp..."
             curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o yt-dlp
@@ -46,7 +47,7 @@ check_dependencies() {
         echo -e "${RED}未检测到 ffmpeg/ffprobe${NC}"
         echo "[Y] 是"
         echo "[N] 否"
-        read -e -p "是否自动安装？(Y/N): " install_choice
+        read -p "是否自动安装？(Y/N): " install_choice
         
         if [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
             echo "正在安装 ffmpeg..."
@@ -62,7 +63,7 @@ check_dependencies() {
                 echo "Debian/Ubuntu: sudo apt install ffmpeg"
                 echo "CentOS: sudo yum install ffmpeg"
                 echo "Alpine: apk add ffmpeg"
-                read -e -p "按回车键继续..."
+                read -p "按回车键继续..."
                 exit 1
             fi
             echo -e "${GREEN}ffmpeg 安装完成${NC}"
@@ -76,30 +77,39 @@ check_dependencies() {
     sleep 2
 }
 
-clear_screen() {
-    clear
-}
+# 设置默认值
+default_output="./video"
+format="2160"
+threads="5"
+
+# 检查并创建config文件夹和cookies.txt
+mkdir -p config
+touch config/cookies.txt config/urls.txt
+
+# 启动脚本前检查依赖
+check_dependencies
 
 input_url() {
-    clear_screen
-    echo -e "${BLUE}===== 视频下载脚本 =====${NC}"
+    clear
+    echo -e "${BLUE}===== 视频下载工具 =====${NC}"
     echo
     echo "[0] 退出脚本"
+    echo
     echo "[1] 单个视频下载"
+    echo
     echo "[2] 批量视频下载"
     echo
-    read -e -p "请选择下载模式: " mode
-    
+
+    read -p "请选择下载模式(0-2): " mode
+    echo
+
     case $mode in
-        0) 
-            echo "正在退出程序..."
-            exit 0 
-            ;;
         1) single_video ;;
         2) batch_videos ;;
-        100) input_url ;;
+        0) exit 0 ;;
         *) 
             echo -e "${RED}无效选择，请重新输入${NC}"
+            echo
             sleep 2
             input_url
             ;;
@@ -107,181 +117,254 @@ input_url() {
 }
 
 single_video() {
-    clear_screen
+    clear
     echo -e "${BLUE}===== 单个视频下载 =====${NC}"
     echo
     echo "[0] 退出脚本"
-    echo "[100] 返回上一步"
-    read -e -p "请输入视频链接: " url
+    echo
+    echo "[100] 返回首页"
+    echo
 
-    if [ "$url" = "0" ]; then
-        echo "正在退出程序..."
+    read -p "请输入视频链接(或输入0/100): " url
+    echo
+
+    if [ "$url" = "0" ]; then 
         exit 0
     elif [ "$url" = "100" ]; then
         input_url
-        return
+    elif [ -z "$url" ]; then
+        single_video
+    else
+        select_output
     fi
-    
-    [ -z "$url" ] && single_video
-    select_quality
 }
 
 batch_videos() {
-    clear_screen
+    clear
     echo -e "${BLUE}===== 批量视频下载 =====${NC}"
     echo
-    echo "请将视频链接保存在当前目录下的 urls.txt 文件中"
+    echo "请将视频链接保存在config文件夹下的 urls.txt 文件中"
+    echo
     echo "每行一个链接"
     echo
     echo "[0] 退出脚本"
-    echo "[1] 继续操作"
-    echo "[100] 返回上一步"
     echo
-    read -e -p "请选择: " choice
-    
+    echo -e "${YELLOW}[1] 继续下载 [默认]${NC}"
+    echo
+    echo "[100] 返回首页"
+    echo
+
+    if [ ! -s "config/urls.txt" ]; then
+        echo -e "${RED}urls.txt 文件为空，请添加视频链接后重试${NC}"
+        echo
+        read -p "请按任意键继续..."
+        input_url
+    fi
+
+    url="config/urls.txt"
+    video_count=$(wc -l < config/urls.txt)
+
+    echo -e "${GREEN}已检测到 urls.txt 文件，包含 ${video_count} 个视频链接${NC}"
+    echo
+    read -p "请选择操作(0/1/100)，直接回车继续下载: " choice
+    echo
+
     case $choice in
-        0)
-            echo "正在退出程序..."
-            exit 0
-            ;;
-        1)
-            if [ ! -f "urls.txt" ]; then
-                echo -e "${RED}未找到 urls.txt 文件${NC}"
-                echo "已为您创建 urls.txt 文件，请在文件中添加视频链接后重试"
-                touch urls.txt
-                echo
-                read -e -p "请按回车键继续..."
-                input_url
-            fi
-            
-            if [ ! -s "urls.txt" ]; then
-                echo -e "${RED}urls.txt 文件为空，请添加视频链接后重试${NC}"
-                echo
-                read -e -p "请按回车键继续..."
-                input_url
-            fi
-            
-            url="urls.txt"
-            video_count=$(wc -l < urls.txt)
-            echo -e "${GREEN}已检测到 urls.txt 文件，包含 ${video_count} 个视频链接${NC}"
-            sleep 2
-            select_quality
-            ;;
-        100)
-            input_url
-            return
-            ;;
+        "") select_output ;;
+        1) select_output ;;
+        0) exit 0 ;;
+        100) input_url ;;
         *)
             echo -e "${RED}无效选择，请重新输入${NC}"
+            echo
             sleep 2
             batch_videos
             ;;
     esac
 }
 
+select_output() {
+    clear
+    echo -e "${BLUE}===== 请选择下载目录 =====${NC}"
+    echo
+    echo -e "${YELLOW}[1] 使用默认目录 ($default_output) [默认]${NC}"
+    echo
+    echo "[2] 指定新目录"
+    echo
+    echo "[0] 退出脚本"
+    echo
+    echo "[100] 返回首页"
+    echo
+
+    read -p "请选择下载目录选项(0-2,100)，直接回车使用默认值: " output_choice
+    echo
+
+    case $output_choice in
+        ""|1) 
+            output_dir="$default_output"
+            select_quality
+            ;;
+        2)
+            read -p "请输入下载目录路径: " output_dir
+            echo
+            if [ -z "$output_dir" ]; then
+                echo "未输入目录路径，将使用默认目录"
+                echo
+                output_dir="$default_output"
+                sleep 2
+            fi
+            select_quality
+            ;;
+        0) exit 0 ;;
+        100) input_url ;;
+        *)
+            echo -e "${RED}无效选择，请重新输入${NC}"
+            echo
+            sleep 2
+            select_output
+            ;;
+    esac
+}
+
 select_quality() {
-    clear_screen
+    clear
     echo -e "${BLUE}===== 请选择视频分辨率 =====${NC}"
     echo
     echo "[0] 退出脚本"
-    echo "[1] 480P"
-    echo "[2] 720P"
-    echo "[3] 1080P"
-    echo "[4] 2160P(4K)"
-    echo "[100] 返回上一步"
     echo
-    read -e -p "请输入数字选择: " choice
-    
+    echo "[1] 480P"
+    echo
+    echo "[2] 720P"
+    echo
+    echo "[3] 1080P"
+    echo
+    echo -e "${YELLOW}[4] 2160P(4K) [默认]${NC}"
+    echo
+    echo "[100] 返回首页"
+    echo
+
+    read -p "请输入数字选择(0-4,100)，直接回车使用默认值: " choice
+    echo
+
     case $choice in
-        0)
-            echo "正在退出程序..."
-            exit 0
+        ""|4)
+            format="2160"
+            filter="bv[height<=$format][ext=mp4]+ba[ext=m4a]/best"
+            select_threads
             ;;
-        1) format=480 ;;
-        2) format=720 ;;
-        3) format=1080 ;;
-        4) format=2160 ;;
-        100)
-            if [ "$mode" == "1" ]; then
-                single_video
-            else
-                batch_videos
-            fi
+        1)
+            format="480"
+            filter="bv[height<=$format][ext=mp4]+ba[ext=m4a]/best"
+            select_threads
             ;;
+        2)
+            format="720"
+            filter="bv[height<=$format][ext=mp4]+ba[ext=m4a]/best"
+            select_threads
+            ;;
+        3)
+            format="1080"
+            filter="bv[height<=$format][ext=mp4]+ba[ext=m4a]/best"
+            select_threads
+            ;;
+        0) exit 0 ;;
+        100) input_url ;;
         *)
             echo -e "${RED}无效选择，请重新输入${NC}"
+            echo
             sleep 2
             select_quality
             ;;
     esac
-    
-    [ "$choice" != "0" ] && [ "$choice" != "100" ] && {
-        filter="bv[height<=$format][ext=mp4]+ba[ext=m4a]/best"
-        select_threads
-    }
 }
 
 select_threads() {
-    clear_screen
+    clear
     echo -e "${BLUE}===== 请选择下载线程数 =====${NC}"
     echo
     echo "线程数越高下载速度越快，但可能会导致不稳定"
+    echo
     echo "推荐值: 4-6"
     echo
-    echo "[0] 退出脚本"
-    echo "[100] 返回上一步"
+    echo -e "${YELLOW}默认值: 5${NC}"
     echo
-    read -e -p "请输入下载线程数(1-10): " threads
-    
-    if [ "$threads" = "0" ]; then
-        echo "正在退出程序..."
-        exit 0
-    elif [ "$threads" = "100" ]; then
-        select_quality
-        return
-    fi
-    
-    if [[ ! $threads =~ ^[1-9]$|^10$ ]]; then
-        echo -e "${RED}无效线程数，请输入1-10之间的整数${NC}"
-        sleep 2
-        select_threads
-    fi
-    
-    confirm_download
+    echo "[0] 退出脚本"
+    echo
+    echo "[100] 返回首页"
+    echo
+
+    read -p "请输入下载线程数(1-10)或选择操作(0,100)，直接回车使用默认值: " threads
+    echo
+
+    case $threads in
+        "") 
+            threads=5
+            confirm_download
+            ;;
+        0) exit 0 ;;
+        100) input_url ;;
+        *)
+            if [[ $threads =~ ^[1-9]$|^10$ ]]; then
+                confirm_download
+            else
+                echo -e "${RED}无效线程数，请输入1-10之间的整数${NC}"
+                echo
+                sleep 2
+                select_threads
+            fi
+            ;;
+    esac
 }
 
 confirm_download() {
-    clear_screen
+    clear
     echo -e "${BLUE}===== 下载配置确认 =====${NC}"
     echo
-    if [ "$mode" == "1" ]; then
+    if [ "$mode" = "1" ]; then
         echo "下载模式: 单个视频"
+        echo
         echo "视频链接: $url"
+        echo
     else
         echo "下载模式: 批量下载"
+        echo
         echo "视频列表: urls.txt"
-        echo "视频总数: ${video_count} 个"
+        echo
+        echo "视频数量: $video_count 个"
+        echo
     fi
     echo "最大分辨率: ${format}P"
+    echo
     echo "下载线程数: $threads"
     echo
-    echo "[0] 退出脚本"
-    echo "[1] 开始下载"
-    echo "[2] 重新配置"
-    echo "[100] 返回上一步"
+    echo "下载目录: $output_dir"
     echo
-    read -e -p "请选择: " confirm
-    
-    case $confirm in
-        0)
-            echo "正在退出程序..."
-            exit 0
-            ;;
-        1) start_download ;;
-        2) input_url ;;
-        100) select_threads ;;
+
+    # 检查cookies.txt是否配置
+    if [ -s "config/cookies.txt" ]; then
+        cookie_status="已配置"
+    else
+        cookie_status="未配置"
+    fi
+    echo "Cookie状态: $cookie_status"
+    echo
+    echo "[0] 退出脚本"
+    echo
+    echo -e "${YELLOW}[1] 开始下载 [默认]${NC}"
+    echo
+    echo "[100] 返回首页"
+    echo
+
+    read -p "请选择操作(0/1/100)，直接回车开始下载: " choice
+    echo
+
+    case $choice in
+        ""|1) start_download ;;
+        0) exit 0 ;;
+        100) input_url ;;
         *)
             echo -e "${RED}无效选择，请重新输入${NC}"
+            echo
             sleep 2
             confirm_download
             ;;
@@ -289,29 +372,69 @@ confirm_download() {
 }
 
 start_download() {
-    clear_screen
+    clear
     echo -e "${BLUE}===== 开始下载 =====${NC}"
     echo
     echo "正在下载，请稍候..."
     echo
-    
-    if [ "$mode" == "1" ]; then
-        ./yt-dlp -f "$filter" \
-        --merge-output-format mp4 \
-        --concurrent-fragments "$threads" \
-        "$url"
+
+    mkdir -p "$output_dir"
+
+    # 尝试使用cookie下载
+    if [ "$cookie_status" = "已配置" ]; then
+        if [ "$mode" = "1" ]; then
+            ./yt-dlp -f "$filter" \
+            --merge-output-format mp4 \
+            --concurrent-fragments "$threads" \
+            --cookies "config/cookies.txt" \
+            -P "$output_dir" \
+            "$url" || {
+                echo -e "${RED}Cookie可能已失效，尝试不使用Cookie下载...${NC}"
+                echo
+                ./yt-dlp -f "$filter" \
+                --merge-output-format mp4 \
+                --concurrent-fragments "$threads" \
+                -P "$output_dir" \
+                "$url"
+            }
+        else
+            ./yt-dlp -f "$filter" \
+            --merge-output-format mp4 \
+            --concurrent-fragments "$threads" \
+            --cookies "config/cookies.txt" \
+            -P "$output_dir" \
+            -a "$url" || {
+                echo -e "${RED}Cookie可能已失效，尝试不使用Cookie下载...${NC}"
+                echo
+                ./yt-dlp -f "$filter" \
+                --merge-output-format mp4 \
+                --concurrent-fragments "$threads" \
+                -P "$output_dir" \
+                -a "$url"
+            }
+        fi
     else
-        ./yt-dlp -f "$filter" \
-        --merge-output-format mp4 \
-        --concurrent-fragments "$threads" \
-        -a "$url"
+        if [ "$mode" = "1" ]; then
+            ./yt-dlp -f "$filter" \
+            --merge-output-format mp4 \
+            --concurrent-fragments "$threads" \
+            -P "$output_dir" \
+            "$url"
+        else
+            ./yt-dlp -f "$filter" \
+            --merge-output-format mp4 \
+            --concurrent-fragments "$threads" \
+            -P "$output_dir" \
+            -a "$url"
+        fi
     fi
-    
+
     echo
     echo -e "${GREEN}下载完成！${NC}"
-    read -e -p "按回车键退出..."
+    echo
+    read -p "按任意键继续..."
 }
 
-# 主程序开始
+# 启动脚本
 check_dependencies
 input_url
