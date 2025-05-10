@@ -11,8 +11,9 @@ DIR="yt-dlp"
 
 echo -e "${YELLOW}⚠️  将要删除 yt-dlp 安装目录：${BLUE}${DIR}${NC}"
 
-# 确认是否删除脚本目录
-read -p "$(echo -e "${YELLOW}你确定要删除该目录及其全部内容吗？(y/N): ${NC}")" confirm
+# 提示确认
+echo -ne "${YELLOW}你确定要删除该目录及其全部内容吗？(y/N): ${NC}"
+read confirm
 if [[ "$confirm" =~ ^[Yy]$ ]]; then
     if [ -d "$DIR" ]; then
         rm -rf "$DIR"
@@ -24,10 +25,11 @@ else
     echo -e "${RED}❎ 已取消删除操作。${NC}"
 fi
 
-# 检查并提示是否卸载 ffmpeg
+# 检查 ffmpeg
 if command -v ffmpeg >/dev/null 2>&1; then
     echo -e "\n${BLUE}🎥 检测到系统已安装 ffmpeg。${NC}"
-    read -p "$(echo -e "${YELLOW}你是否也想卸载 ffmpeg？(y/N): ${NC}")" uninstall_ffmpeg
+    echo -ne "${YELLOW}你是否也想卸载 ffmpeg？(y/N): ${NC}"
+    read uninstall_ffmpeg
     if [[ "$uninstall_ffmpeg" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}🧼 正在卸载 ffmpeg...${NC}"
         sudo apt-get remove --purge -y ffmpeg && sudo apt-get autoremove -y
