@@ -2,18 +2,28 @@
 
 set -e
 
-# 设置脚本目录
+# 脚本配置
 DIR="yt-dlp"
 SCRIPT_NAME="yt-dlp.sh"
 SCRIPT_URL="https://raw.githubusercontent.com/nodeloc666/yt-dlp-script/main/$SCRIPT_NAME"
 
-# 创建并进入目录
-mkdir -p "$DIR"
-cd "$DIR"
+# 创建目录（如果不存在）
+if [ ! -d "$DIR" ]; then
+    echo "📁 正在创建目录：$DIR"
+    mkdir -p "$DIR"
+else
+    echo "📂 目录已存在：$DIR"
+fi
 
-# 下载函数：curl 或 wget 二选一
+# 进入目录
+cd "$DIR" || {
+    echo "❌ 无法进入目录：$DIR"
+    exit 1
+}
+
+# 下载函数，curl 或 wget 二选一
 download_script() {
-    echo "正在下载最新版本的 $SCRIPT_NAME..."
+    echo "🌐 正在下载最新版本的 $SCRIPT_NAME..."
 
     if command -v curl > /dev/null 2>&1; then
         curl -fsSL -o "$SCRIPT_NAME" "$SCRIPT_URL" || {
@@ -31,9 +41,9 @@ download_script() {
     fi
 }
 
-# 执行流程
+# 下载 & 执行
 download_script
 chmod +x "$SCRIPT_NAME"
 
-echo "✅ 脚本已更新并赋予执行权限，开始运行..."
+echo "✅ 下载成功，开始执行 $SCRIPT_NAME ..."
 bash "$SCRIPT_NAME"
