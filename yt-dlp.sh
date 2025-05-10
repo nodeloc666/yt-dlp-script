@@ -21,7 +21,7 @@ check_dependencies() {
         echo "Debian/Ubuntu: sudo apt install curl"
         echo "CentOS: sudo yum install curl"
         echo "Alpine: apk add curl"
-        read -p "按回车键退出..." 
+        read -e -p "按回车键退出..." 
         exit 1
     fi
     
@@ -29,7 +29,7 @@ check_dependencies() {
     if ! command -v ./yt-dlp &> /dev/null; then
         echo -e "${RED}未检测到 yt-dlp${NC}"
         echo -e "${YELLOW}[Y/n] 是否下载 yt-dlp？[默认:是]${NC}"
-        read -p "请选择: " install_choice
+        read -e -p "请选择: " install_choice
         if [ -z "$install_choice" ] || [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
             echo "正在下载 yt-dlp..."
             curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o yt-dlp
@@ -45,7 +45,7 @@ check_dependencies() {
     if ! command -v ffmpeg &> /dev/null || ! command -v ffprobe &> /dev/null; then
         echo -e "${RED}未检测到 ffmpeg/ffprobe${NC}"
         echo -e "${YELLOW}[Y/n] 是否自动安装？[默认:是]${NC}"
-        read -p "请选择: " install_choice
+        read -e -p "请选择: " install_choice
         
         if [ -z "$install_choice" ] || [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
             echo "正在安装 ffmpeg..."
@@ -61,7 +61,7 @@ check_dependencies() {
                 echo "Debian/Ubuntu: sudo apt install ffmpeg"
                 echo "CentOS: sudo yum install ffmpeg"
                 echo "Alpine: apk add ffmpeg"
-                read -p "按回车键继续..."
+                read -e -p "按回车键继续..."
                 exit 1
             fi
             echo -e "${GREEN}ffmpeg 安装完成${NC}"
@@ -93,16 +93,16 @@ input_url() {
     echo
     echo "[0] 退出脚本"
     echo
-    echo "[1] 单个视频下载"
+    echo -e "${YELLOW}[1] 单个视频下载 [默认]${NC}"
     echo
     echo "[2] 批量视频下载"
     echo
 
-    read -p "请选择下载模式(0-2): " mode
+    read -e -p "请选择下载模式(0-2)，直接回车使用默认值: " mode
     echo
 
     case $mode in
-        1) single_video ;;
+        ""|1) single_video ;;
         2) batch_videos ;;
         0) exit 0 ;;
         *) 
@@ -123,7 +123,7 @@ single_video() {
     echo "[100] 返回首页"
     echo
 
-    read -p "请输入视频链接(或输入0/100): " url
+    read -e -p "请输入视频链接(或输入0/100): " url
     echo
 
     if [ "$url" = "0" ]; then 
@@ -155,7 +155,7 @@ batch_videos() {
     if [ ! -s "config/urls.txt" ]; then
         echo -e "${RED}urls.txt 文件为空，请添加视频链接后重试${NC}"
         echo
-        read -p "请按任意键继续..."
+        read -e -p "请按任意键继续..."
         input_url
     fi
 
@@ -164,7 +164,7 @@ batch_videos() {
 
     echo -e "${GREEN}已检测到 urls.txt 文件，包含 ${video_count} 个视频链接${NC}"
     echo
-    read -p "请选择操作(0/1/100)，直接回车继续下载: " choice
+    read -e -p "请选择操作(0/1/100)，直接回车继续下载: " choice
     echo
 
     case $choice in
@@ -194,7 +194,7 @@ select_output() {
     echo "[100] 返回首页"
     echo
 
-    read -p "请选择下载目录选项(0-2,100)，直接回车使用默认值: " output_choice
+    read -e -p "请选择下载目录选项(0-2,100)，直接回车使用默认值: " output_choice
     echo
 
     case $output_choice in
@@ -203,7 +203,7 @@ select_output() {
             select_quality
             ;;
         2)
-            read -p "请输入下载目录路径: " output_dir
+            read -e -p "请输入下载目录路径: " output_dir
             echo
             if [ -z "$output_dir" ]; then
                 echo "未输入目录路径，将使用默认目录"
@@ -241,7 +241,7 @@ select_quality() {
     echo "[100] 返回首页"
     echo
 
-    read -p "请输入数字选择(0-4,100)，直接回车使用默认值: " choice
+    read -e -p "请输入数字选择(0-4,100)，直接回车使用默认值: " choice
     echo
 
     case $choice in
@@ -291,7 +291,7 @@ select_threads() {
     echo "[100] 返回首页"
     echo
 
-    read -p "请输入下载线程数(1-10)或选择操作(0,100)，直接回车使用默认值: " threads
+    read -e -p "请输入下载线程数(1-10)或选择操作(0,100)，直接回车使用默认值: " threads
     echo
 
     case $threads in
@@ -353,7 +353,7 @@ confirm_download() {
     echo "[100] 返回首页"
     echo
 
-    read -p "请选择操作(0/1/100)，直接回车开始下载: " choice
+    read -e -p "请选择操作(0/1/100)，直接回车开始下载: " choice
     echo
 
     case $choice in
@@ -430,7 +430,8 @@ start_download() {
     echo
     echo -e "${GREEN}下载完成！${NC}"
     echo
-    read -p "按任意键继续..."
+    read -e -p "按任意键继续..."
+    input_url
 }
 
 # 启动脚本
