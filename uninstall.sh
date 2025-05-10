@@ -1,33 +1,40 @@
 #!/bin/bash
 
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+NC='\033[0m' # 无色
+
 DIR="yt-dlp"
 
-echo "⚠️ 将要删除 yt-dlp 安装目录：$DIR"
+echo -e "${YELLOW}⚠️  将要删除 yt-dlp 安装目录：${BLUE}${DIR}${NC}"
 
 # 确认是否删除脚本目录
-read -p "你确定要删除该目录及其全部内容吗？(y/N): " confirm
+read -p "$(echo -e "${YELLOW}你确定要删除该目录及其全部内容吗？(y/N): ${NC}")" confirm
 if [[ "$confirm" =~ ^[Yy]$ ]]; then
     if [ -d "$DIR" ]; then
         rm -rf "$DIR"
-        echo "✅ 已删除目录：$DIR"
+        echo -e "${GREEN}✅ 已删除目录：${DIR}${NC}"
     else
-        echo "ℹ️ 目录不存在：$DIR，无需删除。"
+        echo -e "${BLUE}ℹ️  目录不存在：${DIR}，无需删除。${NC}"
     fi
 else
-    echo "❎ 取消删除操作。"
+    echo -e "${RED}❎ 已取消删除操作。${NC}"
 fi
 
 # 检查并提示是否卸载 ffmpeg
 if command -v ffmpeg >/dev/null 2>&1; then
-    echo -e "\n🎥 检测到系统已安装 ffmpeg。"
-    read -p "你是否也想卸载 ffmpeg？(y/N): " uninstall_ffmpeg
+    echo -e "\n${BLUE}🎥 检测到系统已安装 ffmpeg。${NC}"
+    read -p "$(echo -e "${YELLOW}你是否也想卸载 ffmpeg？(y/N): ${NC}")" uninstall_ffmpeg
     if [[ "$uninstall_ffmpeg" =~ ^[Yy]$ ]]; then
-        echo "🧼 正在卸载 ffmpeg..."
+        echo -e "${YELLOW}🧼 正在卸载 ffmpeg...${NC}"
         sudo apt-get remove --purge -y ffmpeg && sudo apt-get autoremove -y
-        echo "✅ ffmpeg 已卸载。"
+        echo -e "${GREEN}✅ ffmpeg 已卸载。${NC}"
     else
-        echo "ℹ️ 保留 ffmpeg 安装。"
+        echo -e "${BLUE}ℹ️ 保留 ffmpeg 安装。${NC}"
     fi
 else
-    echo -e "\nℹ️ 系统未检测到 ffmpeg，无需卸载。"
+    echo -e "\n${BLUE}ℹ️ 系统未检测到 ffmpeg，无需卸载。${NC}"
 fi
