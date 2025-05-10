@@ -50,10 +50,9 @@ check_dependencies() {
         if [ -z "$install_choice" ] || [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
             echo "正在安装 ffmpeg..."
             if [ -f /etc/debian_version ]; then
-                sudo apt-get update && sudo apt-get install -y ffmpeg
+                sudo apt-get update -qq && sudo apt-get install -y ffmpeg -qq
             elif [ -f /etc/redhat-release ]; then
-                sudo yum install -y epel-release
-                sudo yum install -y ffmpeg
+                sudo yum install -y -q epel-release && sudo yum install -y -q ffmpeg
             elif [ -f /etc/alpine-release ]; then
                 apk add ffmpeg
             else
