@@ -1,5 +1,9 @@
 # 简介
 基于yt-dlp的一键脚本，可批量进行视频下载，灵感来自于[nodeseek大佬](https://www.nodeseek.com/post-334093-2#15),支持单/多个视频进行下载，支持Linux/Windows系统。
+## 特色
+- 只需根据提示就能下载视频
+- 支持自定义cookie
+- 支持指定目录输出
 
 ![1000193433.jpg](https://img.cccd.cloudns.be/file/1746720584399_1000193433.jpg)
 
