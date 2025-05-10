@@ -32,7 +32,7 @@ if command -v ffmpeg >/dev/null 2>&1; then
     read uninstall_ffmpeg
     if [[ "$uninstall_ffmpeg" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}🧼 正在卸载 ffmpeg...${NC}"
-        sudo apt-get remove --purge -y ffmpeg && sudo apt-get autoremove -y
+        sudo apt-get remove --purge -y ffmpeg >/dev/null && sudo apt-get autoremove -y >/dev/null
         echo -e "${GREEN}✅ ffmpeg 已卸载。${NC}"
     else
         echo -e "${BLUE}ℹ️ 保留 ffmpeg 安装。${NC}"
