@@ -81,5 +81,3 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/nodeloc666/yt-dlp-script
 本项目遵循 [MIT License](https://opensource.org/licenses/MIT)。
 
 ---
-
-是否需要我也为你生成一个 `.bat` 或 `.sh` 文件样例？
