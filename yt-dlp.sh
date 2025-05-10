@@ -72,7 +72,7 @@ check_dependencies() {
     fi
     
     echo -e "${GREEN}所有依赖检查完成！${NC}"
-    sleep 2
+    sleep 1
 }
 
 # 设置默认值
@@ -84,10 +84,10 @@ threads="5"
 mkdir -p config
 touch config/cookies.txt config/urls.txt
 
-# 启动脚本前检查依赖
-check_dependencies
-
 input_url() {
+    # 每次运行都检查依赖
+    check_dependencies
+    
     clear
     echo -e "${BLUE}===== 视频下载工具 =====${NC}"
     echo
@@ -376,7 +376,6 @@ confirm_download() {
 }
 
 start_download() {
-    clear
     echo -e "${BLUE}===== 开始下载 =====${NC}"
     echo
     echo "正在下载，请稍候..."
@@ -441,5 +440,4 @@ start_download() {
 }
 
 # 启动脚本
-check_dependencies
 input_url
