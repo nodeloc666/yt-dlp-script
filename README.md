@@ -79,4 +79,3 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/nodeloc666/yt-dlp-script
 
 ---
 
-是否还需要我帮你生成项目徽章（badges）或优化 `.bat`/`.sh` 脚本结构？
