@@ -10,6 +10,38 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+# 检查更新
+check_updates() {
+    echo -e "${BLUE}===== 检查更新 =====${NC}"
+    echo
+    
+    # 检查 yt-dlp 更新
+    if [ -f "./yt-dlp" ]; then
+        echo "正在检查 yt-dlp 更新..."
+        ./yt-dlp -U || {
+            echo -e "${RED}更新失败，将继续使用当前版本${NC}"
+            sleep 2
+        }
+    fi
+    
+    # 检查 ffmpeg 更新
+    if command -v ffmpeg &> /dev/null; then
+        if [ -f /etc/debian_version ]; then
+            echo "正在检查 ffmpeg 更新..."
+            sudo apt-get update && sudo apt-get install --only-upgrade ffmpeg -y
+        elif [ -f /etc/redhat-release ]; then
+            echo "正在检查 ffmpeg 更新..."
+            sudo yum update ffmpeg -y
+        elif [ -f /etc/alpine-release ]; then
+            echo "正在检查 ffmpeg 更新..."
+            apk update && apk upgrade ffmpeg
+        fi
+    fi
+    
+    echo -e "${GREEN}更新检查完成！${NC}"
+    sleep 1
+}
+
 # 检查并安装依赖
 check_dependencies() {
     echo -e "${BLUE}===== 检查依赖 =====${NC}"
@@ -50,9 +82,10 @@ check_dependencies() {
         if [ -z "$install_choice" ] || [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
             echo "正在安装 ffmpeg..."
             if [ -f /etc/debian_version ]; then
-                sudo apt-get update -qq && sudo apt-get install -y ffmpeg -qq
+                sudo apt-get update && sudo apt-get install -y ffmpeg
             elif [ -f /etc/redhat-release ]; then
-                sudo yum install -y -q epel-release && sudo yum install -y -q ffmpeg
+                sudo yum install -y epel-release
+                sudo yum install -y ffmpeg
             elif [ -f /etc/alpine-release ]; then
                 apk add ffmpeg
             else
@@ -96,8 +129,10 @@ input_url() {
     echo
     echo "[2] 批量视频下载"
     echo
+    echo "[3] 检查依赖更新"
+    echo
 
-    read -p "请选择下载模式(0-2)，直接回车使用默认值: " mode
+    read -p "请选择下载模式(0-3)，直接回车使用默认值: " mode
     echo
 
     case $mode in
@@ -108,6 +143,10 @@ input_url() {
         2) 
             mode="2"
             batch_videos 
+            ;;
+        3)
+            check_updates
+            input_url
             ;;
         0) exit 0 ;;
         *) 
