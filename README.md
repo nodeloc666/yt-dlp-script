@@ -56,6 +56,12 @@ yt-dlp的一键脚本
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/nodeloc666/yt-dlp-script/main/install.sh)"
 
 ```
+卸载：
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/nodeloc666/yt-dlp-script/main/uninstall.sh)"
+
+```
 
 ---
 
