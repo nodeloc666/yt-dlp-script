@@ -50,7 +50,7 @@ yt-dlp的一键脚本
 
 适配系统：**Debian / Ubuntu / Alpine / CentOS**
 
-打开终端，执行以下命令一键部署并运行：
+打开终端，执行以下命令一键部署/更新并运行：
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/nodeloc666/yt-dlp-script/main/install.sh)"
