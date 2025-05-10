@@ -63,7 +63,8 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/nodeloc666/yt-dlp-script
 
 ## 📱 Android 使用推荐
 
-使用 [Seal](https://github.com/JunkFood02/Seal) App，在 Android 上体验 `yt-dlp` 功能。
+1. 使用 [Seal](https://github.com/JunkFood02/Seal) App，在 Android 上体验 `yt-dlp` 功能。
+2. termux安装Debian也能下载，不过咱没必要用这个，Seal非常好用
 
 ---
 
