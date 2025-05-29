@@ -15,29 +15,52 @@ if not exist "config\config.ini" (
     echo output_dir=.\video >> "config\config.ini"
     echo format=1080 >> "config\config.ini"
     echo threads=5 >> "config\config.ini"
-    echo cookies= >> "config\config.ini"
     echo. >> "config\config.ini"
     echo [batch] >> "config\config.ini"
     echo output_dir=.\video >> "config\config.ini"
     echo format=1080 >> "config\config.ini"
     echo threads=3 >> "config\config.ini"
-    echo cookies= >> "config\config.ini"
 )
-if not exist "config\urls.txt" echo. > "config\urls.txt"
+if not exist "config\urls.txt" type nul > "config\urls.txt"
+if not exist "config\cookies.txt" type nul > "config\cookies.txt"
 goto :eof
 
 :load_config
-for /f "tokens=1,2 delims==" %%a in ('type "config\config.ini" ^| findstr /i "output_dir"') do (
-    set "default_output=%%b"
+setlocal
+set "section="
+for /f "usebackq tokens=1,* delims==" %%a in ("config\config.ini") do (
+    set "line=%%a"
+    set "value=%%b"
+    if "!line:[=!" neq "!line!" (
+        set "section=!line!"
+    ) else if defined section (
+        if "!section!"=="[single]" (
+            if "%%a"=="output_dir" set "single_output=!value!"
+            if "%%a"=="format" set "single_format=!value!"
+            if "%%a"=="threads" set "single_threads=!value!"
+        ) else if "!section!"=="[batch]" (
+            if "%%a"=="output_dir" set "batch_output=!value!"
+            if "%%a"=="format" set "batch_format=!value!"
+            if "%%a"=="threads" set "batch_threads=!value!"
+        )
+    )
 )
-for /f "tokens=1,2 delims==" %%a in ('type "config\config.ini" ^| findstr /i "format"') do (
-    set "default_format=%%b"
-)
-for /f "tokens=1,2 delims==" %%a in ('type "config\config.ini" ^| findstr /i "threads"') do (
-    set "default_threads=%%b"
-)
-for /f "tokens=1,2 delims==" %%a in ('type "config\config.ini" ^| findstr /i "cookies"') do (
-    set "default_cookies=%%b"
+
+:: 设置默认值
+if not defined single_output set "single_output=.\video"
+if not defined single_format set "single_format=1080"
+if not defined single_threads set "single_threads=5"
+if not defined batch_output set "batch_output=.\video"
+if not defined batch_format set "batch_format=1080"
+if not defined batch_threads set "batch_threads=3"
+
+endlocal & (
+    set "single_output=%single_output%"
+    set "single_format=%single_format%"
+    set "single_threads=%single_threads%"
+    set "batch_output=%batch_output%"
+    set "batch_format=%batch_format%"
+    set "batch_threads=%batch_threads%"
 )
 goto :eof
 
@@ -80,10 +103,15 @@ call :use_default_config single
 goto confirm_download
 
 :use_default_config
-set "output_dir=!default_output!"
-set "format=!default_format!"
-set "threads=!default_threads!"
-set "cookies=!default_cookies!"
+if "%1"=="single" (
+    set "output_dir=!single_output!"
+    set "format=!single_format!"
+    set "threads=!single_threads!"
+) else (
+    set "output_dir=!batch_output!"
+    set "format=!batch_format!"
+    set "threads=!batch_threads!"
+)
 goto :eof
 
 :custom_config
@@ -109,10 +137,7 @@ if "!quality!"=="4" set "format=2160"
 echo. 
 set /p threads="请输入下载线程数(1-10，默认5): "
 if "!threads!"=="" set "threads=5"
-
-echo. 
-set /p cookies="请输入cookies文件路径(可选): "
-goto :eof
+goto confirm_download
 
 :confirm_download
 cls
@@ -123,11 +148,13 @@ echo 下载目录: !output_dir!
 echo 视频质量: !format!P 
 echo 下载线程: !threads! 
 
-:: 检查cookies配置状态
-if not "!cookies!"=="" (
-    echo Cookies状态: 已配置 
+:: 检查cookies.txt文件状态
+set "cookies_empty=1"
+for /f "usebackq delims=" %%a in ("config\cookies.txt") do set "cookies_empty=0"
+if !cookies_empty!==0 (
+    echo Cookies状态: 已配置 ^(使用 config\cookies.txt^)
 ) else (
-    echo Cookies状态: 未配置 
+    echo Cookies状态: 未配置 ^(config\cookies.txt为空^)
 )
 
 echo. 
@@ -151,13 +178,14 @@ echo.
 
 if not exist "config\urls.txt" (
     echo urls.txt文件不存在，已创建空文件 
-    echo. > "config\urls.txt"
+    type nul > "config\urls.txt"
     timeout /t 2 >nul
     goto main_menu
 )
 
-findstr /r /c:"." "config\urls.txt" >nul
-if errorlevel 1 (
+set "urls_empty=1"
+for /f "usebackq delims=" %%a in ("config\urls.txt") do set "urls_empty=0"
+if !urls_empty!==1 (
     echo urls.txt文件为空，请添加视频链接 
     timeout /t 2 >nul
     goto main_menu
@@ -175,11 +203,13 @@ echo 下载目录: !output_dir!
 echo 视频质量: !format!P 
 echo 下载线程: !threads! 
 
-:: 检查cookies配置状态
-if not "!cookies!"=="" (
-    echo Cookies状态: 已配置 
+:: 检查cookies.txt文件状态
+set "cookies_empty=1"
+for /f "usebackq delims=" %%a in ("config\cookies.txt") do set "cookies_empty=0"
+if !cookies_empty!==0 (
+    echo Cookies状态: 已配置 ^(使用 config\cookies.txt^)
 ) else (
-    echo Cookies状态: 未配置 
+    echo Cookies状态: 未配置 ^(config\cookies.txt为空^)
 )
 
 echo. 
@@ -204,8 +234,11 @@ echo.
 
 set "filter=bv[height<=!format!][ext=mp4]+ba[ext=m4a]/best"
 
-if not "!cookies!"=="" (
-    yt-dlp -f "!filter!" --merge-output-format mp4 --concurrent-fragments !threads! --cookies "!cookies!" -P "!output_dir!" !url! || (
+:: 检查cookies.txt是否存在且非空
+set "cookies_empty=1"
+for /f "usebackq delims=" %%a in ("config\cookies.txt") do set "cookies_empty=0"
+if !cookies_empty!==0 (
+    yt-dlp -f "!filter!" --merge-output-format mp4 --concurrent-fragments !threads! --cookies "config\cookies.txt" -P "!output_dir!" !url! || (
         echo Cookie可能已失效，尝试不使用Cookie下载... 
         echo. 
         yt-dlp -f "!filter!" --merge-output-format mp4 --concurrent-fragments !threads! -P "!output_dir!" !url!
