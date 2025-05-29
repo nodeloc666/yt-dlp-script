@@ -40,7 +40,7 @@
    * `yt-dlp.bat`（脚本文件）
 
 3. 双击运行 `yt-dlp.bat`，根据提示操作即可下载视频。
-4. 编辑config/config.ini进行默认配置修改，cookies只需任一配置一次即可
+4. 编辑config/config.ini进行默认配置修改
 
 ---
 
